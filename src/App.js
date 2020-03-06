@@ -15,43 +15,37 @@ const App = props => {
     //console.log("hi");
   };
 
-  const handleChangeSize = e => {
-    setSize(e.target.value);
-    const sized = e.target.value;
-    console.log(sized.toUpperCase());
-    console.log(filterProducts)
-    const newProducts = products;
-    const newfilterProducts = filterProducts;
+  const handleChangeSize = () => {
+    const filteredProducts = products.filter(product =>
+      product.availableSizes.includes(size.toUpperCase())
+    );
+    //console.log("filteredProducts in handleChangeSize", filteredProducts);
+    setFilterProducts(filteredProducts);
+    // const newProducts = products;
+    // const newfilterProducts = filterProducts;
     //console.log(newProducts.filter(product => product.availableSizes.map(size => size).indexOf(sized.toUpperCase())))
-    console.log(newProducts.filter(product => product.availableSizes.includes(sized.toUpperCase())));
-    setProducts(size === 'select' ? newfilterProducts :  newProducts.filter(product => product.availableSizes.includes(sized.toUpperCase())));
-    console.log(newProducts)
+    // console.log(newProducts.filter(product => product.availableSizes.includes(sized.toUpperCase())));
+    // setProducts(size === 'select' ? newfilterProducts :  newProducts.filter(product => product.availableSizes.includes(sized.toUpperCase())));
+    // console.log(newProducts)
   };
 
   const handleChangeSort = e => {
     setSort(e.target.value);
-    console.log(e.target.value);
 
     const sorted = e.target.value;
     const sortProducts = () => {
-      const newProducts = products;
-
-      newProducts.map(product => {
-        if (sorted !== "select") {
-          newProducts.sort((a, b) =>
-            sorted === "lowest"
-              ? a.price > b.price
-                ? 1
-                : -1
-              : a.price < b.price
-              ? 1
-              : -1
-          );
-        } else {
-          newProducts.sort((a, b) => (a.id > b.id ? 1 : -1));
-        }
-        return newProducts;
-      });
+      const key = sorted === "select" ? "id" : "price";
+      console.log(key)
+      const newProducts = products.sort((a, b) =>
+        sorted === "lowest"
+          ? a[key] > b[key]
+            ? 1
+            : -1
+          : a[key] < b[key]
+          ? 1
+          : -1
+      );
+      return newProducts;
     };
     sortProducts();
   };
@@ -61,11 +55,16 @@ const App = props => {
       .get("http://localhost:5000/products")
       .then(response => {
         setProducts(response.data);
-        setFilterProducts(response.data)})
+        setFilterProducts(response.data);
+      })
       .catch(error => {
         console.log(error);
       });
   }, []);
+
+  useEffect(() => {
+    handleChangeSize();
+  }, [size]);
 
   return (
     <div className="container">
@@ -76,12 +75,16 @@ const App = props => {
           <Filter
             size={size}
             sort={sort}
-            handleChangeSize={handleChangeSize}
             handleChangeSort={handleChangeSort}
             count={products.length}
+            setSize={setSize}
           />
           <hr />
-          <Products products={products} handleAddToCart={handleAddToCart} />
+          <Products
+            products={products}
+            filterProducts={filterProducts}
+            handleAddToCart={handleAddToCart}
+          />
         </div>
         <div className="col-md-4"></div>
       </div>

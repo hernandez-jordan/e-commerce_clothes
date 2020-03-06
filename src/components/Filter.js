@@ -24,7 +24,7 @@ const Filter = props => {
           <select
             className="form-control"
             value={props.size}
-            onChange={props.handleChangeSize}
+            onChange={(e) => props.setSize(e.target.value)}
           >
             <option value="select">Select</option>
             <option value="x">x</option>
