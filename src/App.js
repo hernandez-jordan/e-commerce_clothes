@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 import Products from "./components/Products";
@@ -6,31 +6,38 @@ import Filter from "./components/Filter";
 
 const App = props => {
   const [products, setProducts] = useState([]);
-  //const [filterProducts, setFilterProducts] = useState([]);
-  const [sort, setSort] = useState('select');
+  const [filterProducts, setFilterProducts] = useState([]);
+  const [sort, setSort] = useState("select");
+  const [size, setSize] = useState("select");
   //const count = useRef(0);
-  const size = useRef();
 
-  // const handleAddToCart = () => {
-  //   //console.log("hi");
-  // };
+  const handleAddToCart = () => {
+    //console.log("hi");
+  };
 
-  // const handleChangeSize = () => {
-  //   //console.log("hi");
-  // };
+  const handleChangeSize = e => {
+    setSize(e.target.value);
+    const sized = e.target.value;
+    console.log(sized.toUpperCase());
+    console.log(filterProducts)
+    const newProducts = products;
+    const newfilterProducts = filterProducts;
+    //console.log(newProducts.filter(product => product.availableSizes.map(size => size).indexOf(sized.toUpperCase())))
+    console.log(newProducts.filter(product => product.availableSizes.includes(sized.toUpperCase())));
+    setProducts(size === 'select' ? newfilterProducts :  newProducts.filter(product => product.availableSizes.includes(sized.toUpperCase())));
+    console.log(newProducts)
+  };
 
   const handleChangeSort = e => {
     setSort(e.target.value);
     console.log(e.target.value);
 
     const sorted = e.target.value;
-
     const sortProducts = () => {
       const newProducts = products;
 
       newProducts.map(product => {
         if (sorted !== "select") {
-          console.log("select = ", false);
           newProducts.sort((a, b) =>
             sorted === "lowest"
               ? a.price > b.price
@@ -41,7 +48,6 @@ const App = props => {
               : -1
           );
         } else {
-          console.log("select = ", true);
           newProducts.sort((a, b) => (a.id > b.id ? 1 : -1));
         }
         return newProducts;
@@ -52,11 +58,10 @@ const App = props => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/products")
+      .get("http://localhost:5000/products")
       .then(response => {
         setProducts(response.data);
-      })
-      //setFilterProducts(response.data)})
+        setFilterProducts(response.data)})
       .catch(error => {
         console.log(error);
       });
@@ -71,15 +76,12 @@ const App = props => {
           <Filter
             size={size}
             sort={sort}
-            //handleChangeSize={handleChangeSize}
+            handleChangeSize={handleChangeSize}
             handleChangeSort={handleChangeSort}
             count={products.length}
           />
           <hr />
-          <Products
-            products={products}
-            //handleAddToCart={handleAddToCart}
-          />
+          <Products products={products} handleAddToCart={handleAddToCart} />
         </div>
         <div className="col-md-4"></div>
       </div>
