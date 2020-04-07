@@ -1,33 +1,46 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback} from "react";
 import axios from "axios";
 import "./App.css";
 import Products from "./components/Products";
 import Filter from "./components/Filter";
+import Basket from "./components/Basket";
+
 
 const App = props => {
   const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const [filterProducts, setFilterProducts] = useState([]);
   const [sort, setSort] = useState("select");
   const [size, setSize] = useState("select");
-  //const count = useRef(0);
-
-  const handleAddToCart = () => {
-    //console.log("hi");
+  
+  const handleRemoveFromCart = () => {
+    console.log("remove");
+  }
+  
+  const handleAddToCart = (e , product) => {
+   const getCartItem = product.id;
+   let productInCart = false;
+    
+   setCartItems({getCartItem, count: 1})
+   console.log(getCartItem)
+   console.log(cartItems)
+   //console.log(product.id)
+   
+   
+    
+    
   };
 
-  const handleChangeSize = () => {
-    const filteredProducts = products.filter(product =>
-      product.availableSizes.includes(size.toUpperCase())
-    );
-    //console.log("filteredProducts in handleChangeSize", filteredProducts);
-    setFilterProducts(filteredProducts);
-    // const newProducts = products;
-    // const newfilterProducts = filterProducts;
-    //console.log(newProducts.filter(product => product.availableSizes.map(size => size).indexOf(sized.toUpperCase())))
-    // console.log(newProducts.filter(product => product.availableSizes.includes(sized.toUpperCase())));
-    // setProducts(size === 'select' ? newfilterProducts :  newProducts.filter(product => product.availableSizes.includes(sized.toUpperCase())));
-    // console.log(newProducts)
-  };
+  const handleChangeSize = useCallback(
+    () => {
+      const filteredProducts = products.filter(product =>
+        product.availableSizes.includes(size.toUpperCase())
+      );
+      setFilterProducts(filteredProducts);
+    },
+    [products, size],
+  )
+  
 
   const handleChangeSort = e => {
     setSort(e.target.value);
@@ -64,7 +77,7 @@ const App = props => {
 
   useEffect(() => {
     handleChangeSize();
-  }, [size]);
+  }, [handleChangeSize]);
 
   return (
     <div className="container">
@@ -78,7 +91,7 @@ const App = props => {
             handleChangeSort={handleChangeSort}
             count={products.length}
             setSize={setSize}
-          />
+          />       
           <hr />
           <Products
             products={products}
@@ -86,7 +99,9 @@ const App = props => {
             handleAddToCart={handleAddToCart}
           />
         </div>
-        <div className="col-md-4"></div>
+        <div className="col-md-4">
+          <Basket cartItems={cartItems} handleRemoveFromCart={handleRemoveFromCart} /> 
+        </div>
       </div>
     </div>
   );
